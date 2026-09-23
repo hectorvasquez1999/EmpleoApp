@@ -142,6 +142,13 @@ canales:
         paginas: 2
       - texto: "financial planning and analysis"
         paginas: 2
+      # Roles de contractor internacional suelen decirlo en el titulo
+      # (a diferencia de "worldwide"/"LATAM", que casi siempre va en la
+      # descripcion, y la busqueda aqui es solo por titulo).
+      - texto: "remote finance contractor"
+        paginas: 2
+      - texto: "controller contractor"
+        paginas: 1
     grupos:
       - grupo: "Controller"
         prioridad: 1
@@ -204,6 +211,10 @@ canales:
         paginas: 2
       - texto: "data analyst"
         paginas: 2
+      - texto: "remote data contractor"
+        paginas: 1
+      - texto: "data analyst contractor"
+        paginas: 1
     grupos:
       - grupo: "Analista de datos"
         prioridad: 1
