@@ -1,0 +1,271 @@
+# =====================================================================
+#  PERFIL DE BUSQUEDA
+#
+#  Este es el UNICO archivo que necesitas tocar para cambiar criterios.
+#  No hace falta saber programar. Solo dos reglas:
+#    1. Respeta los espacios del principio de cada linea (la sangria).
+#    2. Las listas empiezan con un guion y un espacio:  - asi
+#  Si un texto lleva acentos, comas o dos puntos, ponlo entre comillas.
+#
+#  Perfil: busqueda 100% remota e internacional (sin mercado presencial),
+#  preferencia por empresas de EE.UU., abierto a cualquier pais remoto.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# ALCANCE
+# "remoto_puro" le dice al sistema que no hay ciudad de referencia:
+# no descarta ofertas por pais, solo por si son remotas o no.
+# ---------------------------------------------------------------------
+alcance:
+  modo: remoto_puro
+
+# ---------------------------------------------------------------------
+# SALARIO
+# Importante: el salario NO se usa para descartar ofertas, solo para
+# etiquetarlas. Muchas ofertas no publican sueldo y no queremos perderlas.
+# ---------------------------------------------------------------------
+salario:
+  # Valor de ejemplo (3000 USD/mes x 12). El real ponlo en el secreto de
+  # GitHub SALARIO_ANUAL_MINIMO: si existe, tiene prioridad sobre este
+  # numero, asi tu umbral real no queda publicado en un repositorio publico.
+  umbral_anual_minimo: 36000
+  moneda: "USD"
+  # Para convertir a anual un salario que la fuente de correo (LinkedIn)
+  # de en mensual. 12 es el estandar fuera de Espana.
+  pagas_anuales: 12
+
+# ---------------------------------------------------------------------
+# CONTRATO
+# ---------------------------------------------------------------------
+contrato:
+  aceptados:
+    - indefinido
+    - temporal
+  excluidos:
+    - practicas
+    - beca
+
+# ---------------------------------------------------------------------
+# PALABRAS QUE DESCARTAN UNA OFERTA
+# Si el titulo contiene alguna de estas, la oferta se ignora aunque
+# coincida con un sinonimo. Anade las que veas que ensucian.
+# ---------------------------------------------------------------------
+exclusiones_titulo:
+  - comercial
+  - teleoperador
+  - teleoperadora
+  - camarero
+  - camarera
+  - cocinero
+  - recepcionista
+  - dependiente
+  - dependienta
+  - repartidor
+  - conductor
+  - limpieza
+  - becario
+  - becaria
+  - practicas
+  - internship
+  - trainee
+  - vendedor
+  - vendedora
+  - promotor
+  - promotora
+  - captador
+  - captadora
+  - intern
+  - stage
+  - graduate program
+  - rater
+  - encuestador
+  - encuestadora
+  # equivalentes en ingles, para el mercado internacional
+  - sales
+  - sales representative
+  - account executive
+  - customer service
+  - customer support
+  - call center
+  - cashier
+  - server
+  - barista
+  - driver
+  - warehouse
+  - retail associate
+  - receptionist
+
+# ---------------------------------------------------------------------
+# NIVEL DEL PUESTO
+# No descarta nada: solo etiqueta, para que puedas apartar de un vistazo
+# lo que te queda grande o pequeno sin perderlo de vista.
+# ---------------------------------------------------------------------
+niveles:
+  directivo: [director, directora, "head of", chief, cfo, cdo, vp, "vice president"]
+  lead: [lead, manager, jefe, jefa, responsable, principal, "team lead"]
+  senior: [senior, sr, experto, experta]
+  junior: [junior, jr, becario, trainee, graduate, "recien titulado", entry, "entry level"]
+
+# ---------------------------------------------------------------------
+# CANALES
+#
+#  consultas_api : lo que se le pide a Adzuna. Pocas y amplias, porque
+#                  cada consulta gasta cupo de la API.
+#  grupos        : como se clasifica despues, en local y sin coste.
+#                  prioridad 1 = lo que mas te interesa, 4 = lo ultimo.
+#
+#  Sin mercado presencial (remoto_puro): "presencial_provincias" se deja
+#  vacio y solo cuenta acepta_remoto.
+# ---------------------------------------------------------------------
+canales:
+
+  A:
+    nombre: "Finance and Controlling"
+    prioridad: 1
+    geografia:
+      presencial_provincias: []
+      acepta_remoto: true
+      acepta_hibrido: false
+      ambito_remoto: "Internacional"
+    consultas_api:
+      - texto: "remote financial controller"
+        paginas: 3
+      - texto: "remote fp&a analyst"
+        paginas: 3
+      - texto: "remote financial analyst"
+        paginas: 3
+      - texto: "remote cost analyst"
+        paginas: 2
+      - texto: "remote finance manager"
+        paginas: 2
+      - texto: "controller"
+        paginas: 2
+      - texto: "financial planning and analysis"
+        paginas: 2
+    grupos:
+      - grupo: "Controller"
+        prioridad: 1
+        sinonimos:
+          - "controller"
+          - "financial controller"
+          - "business controller"
+          - "cost controller"
+          - "controlling"
+      - grupo: "FP&A"
+        prioridad: 1
+        sinonimos:
+          - "fp&a"
+          - "fpa"
+          - "financial planning and analysis"
+          - "financial planning & analysis"
+          - "planning and analysis"
+      - grupo: "Analisis financiero"
+        prioridad: 2
+        sinonimos:
+          - "financial analyst"
+          - "finance analyst"
+          - "financial reporting"
+          - "financial reporting analyst"
+      - grupo: "Costes"
+        prioridad: 2
+        sinonimos:
+          - "cost analyst"
+          - "cost accountant"
+      - grupo: "Responsable financiero"
+        prioridad: 3
+        sinonimos:
+          - "finance manager"
+          - "financial manager"
+          - "head of finance"
+          - "director of finance"
+      - grupo: "Contabilidad"
+        prioridad: 4
+        sinonimos:
+          - "accountant"
+          - "accounting analyst"
+          - "staff accountant"
+
+  B:
+    nombre: "Data and BI"
+    prioridad: 1
+    geografia:
+      presencial_provincias: []
+      acepta_remoto: true
+      acepta_hibrido: false
+      ambito_remoto: "Internacional"
+    consultas_api:
+      - texto: "remote data analyst"
+        paginas: 3
+      - texto: "remote business intelligence"
+        paginas: 3
+      - texto: "remote power bi"
+        paginas: 3
+      - texto: "remote analytics"
+        paginas: 2
+      - texto: "data analyst"
+        paginas: 2
+    grupos:
+      - grupo: "Analista de datos"
+        prioridad: 1
+        sinonimos:
+          - "data analyst"
+          - "reporting analyst"
+          - "business analyst"
+      - grupo: "BI"
+        prioridad: 1
+        sinonimos:
+          - "bi analyst"
+          - "business intelligence"
+          - "business intelligence analyst"
+          - "bi developer"
+          - "bi consultant"
+          - "bi specialist"
+      - grupo: "Power BI y Fabric"
+        prioridad: 1
+        sinonimos:
+          - "power bi"
+          - "power bi developer"
+          - "power bi analyst"
+          - "power bi consultant"
+          - "microsoft fabric"
+      - grupo: "Analytics Engineer"
+        prioridad: 2
+        sinonimos:
+          - "analytics engineer"
+          - "data consultant"
+      - grupo: "Data Engineer"
+        prioridad: 3
+        sinonimos:
+          - "data engineer"
+          - "etl developer"
+          - "data warehouse"
+
+# ---------------------------------------------------------------------
+# ALERTAS POR CORREO
+# Cuantos dias hacia atras se miran las etiquetas de Gmail. Se puede subir
+# puntualmente para recuperar correos viejos: los duplicados se descartan
+# solos, asi que no hay riesgo.
+#
+# Para este perfil solo tiene sentido activar la etiqueta AppEmpleo/LinkedIn
+# (alertas de LinkedIn en ingles, filtradas por "remote"). La de InfoJobs
+# es un portal solo de Espana: si no creas esa etiqueta en Gmail, el
+# sistema simplemente la ignora sin fallar.
+# ---------------------------------------------------------------------
+correo:
+  dias_atras: 30
+
+# ---------------------------------------------------------------------
+# LIMITES DE LA API
+# El plan de prueba de Adzuna tiene cupo. Estos topes evitan pasarse.
+# pais: Adzuna es un buscador por pais. "us" es el mercado con mas
+# ofertas remotas en ingles; puedes cambiarlo a "gb", "ca", etc. y
+# ejecutar otra pasada si quieres cubrir mas paises.
+# ---------------------------------------------------------------------
+adzuna:
+  pais: "us"
+  resultados_por_pagina: 50
+  paginas_por_consulta: 3
+  dias_maximos_antiguedad: 30
+  buscar_solo_en_titulo: true
+  maximo_llamadas_por_ejecucion: 60
+  segundos_entre_llamadas: 1.5
