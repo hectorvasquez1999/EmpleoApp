@@ -11,7 +11,7 @@
 
 # ATENCION: este nombre TIENE que ser identico al del Worker en el panel
 # de Cloudflare. Si no coincide, la compilacion falla antes de desplegar.
-name = "raspy-lake-6eca"
+name = "appempleo"
 compatibility_date = "2026-09-20"
 
 [assets]
