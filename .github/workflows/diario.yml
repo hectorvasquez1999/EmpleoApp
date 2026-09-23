@@ -36,5 +36,5 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           GMAIL_USUARIO:        ${{ secrets.GMAIL_USUARIO }}
           GMAIL_APP_PASSWORD:   ${{ secrets.GMAIL_APP_PASSWORD }}
-          SALARIO_NETO_MINIMO:  ${{ secrets.SALARIO_NETO_MINIMO }}
+          SALARIO_ANUAL_MINIMO: ${{ secrets.SALARIO_ANUAL_MINIMO }}
         run: python src/main.py
