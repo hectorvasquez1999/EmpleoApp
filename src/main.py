@@ -23,6 +23,7 @@ from conectores.adzuna import CODIGO_FUENTE, Adzuna, a_formato_comun
 from conectores.alertas_correo import (CODIGO_INFOJOBS, CODIGO_LINKEDIN,
                                        interpretar_infojobs, interpretar_linkedin)
 from conectores.correo import Buzon, asunto, extraer_parte
+from conectores import remoteok
 from db import Supabase, comprobar_entorno
 
 ETIQUETAS = {"AppEmpleo/LinkedIn": CODIGO_LINKEDIN,
@@ -183,6 +184,106 @@ def preparar_correo(oferta: dict, perfil: dict, umbral_bruto: float) -> dict | N
     }
 
 
+def preparar_remoto(c: dict, fuente: str, perfil: dict, umbral_bruto: float) -> dict | None:
+    """
+    Traduce una oferta de una fuente 100% remota (Remote OK, Remotive) al
+    mismo formato que usa Adzuna. A diferencia de Adzuna, aqui la
+    modalidad remota no se adivina: la garantiza la propia fuente. Lo
+    que si hay que comprobar es si esa oferta, aun siendo remota,
+    restringe el pais desde el que se puede trabajar.
+    """
+    clas = nz.clasificar(c["titulo"], c["descripcion"] or "", perfil)
+    if not (clas["canal_a"] or clas["canal_b"]):
+        return None
+
+    contrato = nz.detectar_contrato(c["titulo"], c["descripcion"] or "", None)
+    if contrato in perfil["contrato"]["excluidos"]:
+        return None
+
+    ubicacion = c["ubicacion_texto"] or ""
+    restringido = nz.es_remoto_restringido(f"{ubicacion} {c['descripcion'] or ''}")
+    alcance = "descartada" if restringido else nz.evaluar_alcance(
+        "", "remoto", "", perfil, clas["canal_a"], clas["canal_b"])
+    nivel = nz.detectar_nivel(c["titulo"], perfil)
+
+    titulo_norm = nz.normalizar_titulo(c["titulo"])
+    empresa_norm = nz.normalizar_empresa(c["empresa"] or "")
+    semilla_empresa = empresa_norm or f"sinempresa-{nz.normalizar(ubicacion)}"
+    publicado = bool(c["salario_min"] or c["salario_max"])
+
+    return {
+        "huella": nz.calcular_huella(semilla_empresa, titulo_norm, ""),
+        "titulo": c["titulo"],
+        "titulo_norm": titulo_norm,
+        "empresa": c["empresa"],
+        "empresa_norm": empresa_norm or None,
+        "ubicacion_texto": ubicacion or None,
+        "pais": None,
+        "comunidad": None,
+        "provincia": None,
+        "municipio": None,
+        "modalidad": "remoto",
+        "contrato": contrato,
+        "jornada": None,
+        "salario_min": c["salario_min"],
+        "salario_max": c["salario_max"],
+        "salario_periodo": "anual",
+        "salario_publicado": publicado,
+        "salario_estimado": False,
+        "salario_bruto_anual_min": c["salario_min"] if publicado else None,
+        "salario_bruto_anual_max": c["salario_max"] if publicado else None,
+        "cumple_salario": nz.evaluar_salario(c["salario_min"], c["salario_max"],
+                                             umbral_bruto, publicado),
+        "descripcion": c["descripcion"],
+        "url": c["url"],
+        "canal_a": clas["canal_a"],
+        "canal_b": clas["canal_b"],
+        "grupo_rol": clas["grupo_rol"],
+        "prioridad": clas["prioridad"],
+        "alcance": alcance,
+        "nivel": nivel,
+        "publicada_en": nz.a_fecha(c["publicada_en"]),
+        "fuente": fuente,
+        "id_origen": c["id_origen"],
+    }
+
+
+def ingerir_remoteok(bd: Supabase, perfil: dict, umbral_bruto: float,
+                     momento: datetime) -> None:
+    """Trae todas las ofertas vigentes de Remote OK y filtra por perfil."""
+    id_ejecucion = bd.abrir_ejecucion(remoteok.CODIGO_FUENTE)
+    corte = momento.isoformat()
+    try:
+        anuncios, avisos = remoteok.recolectar()
+        for aviso in avisos:
+            print(f"AVISO: {aviso}")
+
+        guardar_crudo(anuncios, momento, remoteok.CODIGO_FUENTE)
+
+        preparadas = [p for p in (
+            preparar_remoto(remoteok.a_formato_comun(a), remoteok.CODIGO_FUENTE, perfil, umbral_bruto)
+            for a in anuncios) if p]
+        print(f"{len(anuncios)} anuncios de Remote OK -> {len(preparadas)} encajan en algun canal")
+
+        nuevas = actualizadas = 0
+        for i in range(0, len(preparadas), LOTE):
+            r = bd.ingerir(preparadas[i:i + LOTE])
+            nuevas += r.get("nuevas", 0)
+            actualizadas += r.get("actualizadas", 0)
+
+        if not avisos:
+            apagadas = bd.marcar_inactivas(remoteok.CODIGO_FUENTE, corte)
+            print(f"Remote OK: ofertas marcadas como ya no publicadas: {apagadas}")
+
+        bd.cerrar_ejecucion(id_ejecucion, "ok", 0, len(preparadas), nuevas)
+        print(f"REMOTEOK  nuevas={nuevas}  actualizadas={actualizadas}")
+
+    except Exception as e:
+        bd.cerrar_ejecucion(id_ejecucion, "error", 0, 0, 0, str(e))
+        print(f"ERROR en la fuente Remote OK (las demas no se ven afectadas):\n{e}",
+              file=sys.stderr)
+
+
 def ingerir_correo(bd: Supabase, perfil: dict, umbral_bruto: float) -> None:
     """Lee las alertas de LinkedIn e InfoJobs desde Gmail."""
     if not os.environ.get("GMAIL_USUARIO", "").strip():
@@ -287,6 +388,7 @@ def main() -> int:
               f"llamadas_api={cliente.llamadas}")
 
         ingerir_correo(bd, perfil, umbral_bruto)
+        ingerir_remoteok(bd, perfil, umbral_bruto, momento)
         return 0
 
     except Exception as e:

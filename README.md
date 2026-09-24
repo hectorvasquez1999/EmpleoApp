@@ -176,6 +176,7 @@ src/main.py                       el orquestador diario
 src/normalizar.py                 limpieza, huella, clasificación
 src/geografia.py                  de municipio a provincia
 src/conectores/adzuna.py          fuente por API
+src/conectores/remoteok.py        fuente por API, remoto internacional
 src/conectores/correo.py          lector de Gmail por IMAP
 src/conectores/alertas_correo.py  intérpretes de LinkedIn e InfoJobs
 src/db.py                         acceso a Supabase con reintentos

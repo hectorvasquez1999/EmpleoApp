@@ -36,6 +36,19 @@ PALABRAS_TEMPORAL = ["temporal", "contract", "sustitucion", "obra y servicio",
 PALABRAS_PRACTICAS = ["practicas", "becario", "beca", "internship", "trainee",
                       "formacion dual"]
 
+# Frases con las que un portal remoto (Remote OK, Remotive) dice que en
+# realidad solo contratan desde un pais o region concretos. "Remoto" no
+# siempre significa remoto para cualquiera: esto es lo que te bloqueaba
+# al abrir ofertas de EE.UU. sin poder aplicar desde fuera.
+RESTRICCION_PAIS_REMOTO = [
+    "usa only", "us only", "u.s. only", "united states only",
+    "us-based only", "us based only", "us citizens only",
+    "authorized to work in the us", "authorized to work in the united states",
+    "must be based in the us", "must be located in the us",
+    "uk only", "united kingdom only", "canada only", "eu only",
+    "europe only", "emea only", "nafta only", "australia only",
+]
+
 
 def quitar_acentos(texto: str) -> str:
     if not texto:
@@ -181,6 +194,17 @@ def detectar_nivel(titulo: str, perfil: dict) -> str:
             if _contiene_frase(titulo_norm, marca):
                 return nivel
     return "desconocido"
+
+
+def es_remoto_restringido(texto: str) -> bool:
+    """
+    True si el propio anuncio dice que ese "remoto" es solo para quien
+    vive en un pais/region concreto (ej. "US Only"). Se usa con fuentes
+    100% remotas (Remote OK, Remotive) donde no hay geografia que
+    consultar: hay que leerlo del texto.
+    """
+    t = normalizar(texto)
+    return any(_contiene_frase(t, frase) for frase in RESTRICCION_PAIS_REMOTO)
 
 
 def evaluar_alcance(provincia: str, modalidad: str, pais: str, perfil: dict,
